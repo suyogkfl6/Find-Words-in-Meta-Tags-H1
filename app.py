@@ -21,7 +21,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🔍 SEO Metadata Crawler")
-st.markdown("Crawl sitemaps, extract metadata, and filter for **specific keywords** in real-time at H1, Meta Title 7 Desc.")
+st.markdown("Crawl sitemaps, extract metadata, and filter for **specific keywords** in real-time at H1, Meta Title & Desc.")
 
 # Input Section with Columns
 col1, col2 = st.columns([3, 1])
