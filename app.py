@@ -28,7 +28,7 @@ col1, col2 = st.columns([3, 1])
 with col1:
     url_input = st.text_input("Website URL", placeholder="https://example.com")
 with col2:
-    search_term = st.text_input("Search Term", value="2025", placeholder="e.g., 2025, AI, Pricing")
+    search_term = st.text_input("Search Term", value="2025, 26 (seperated by comma)", placeholder="e.g., 2025, AI, Pricing")
 
 start_button = st.button("🚀 Start Crawl", type="primary")
 
