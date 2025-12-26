@@ -21,7 +21,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🔍 SEO Metadata Crawler")
-st.markdown("Crawl sitemaps, extract metadata, and filter for **specific keywords** in real-time at H1, Meta Title & Desc.")
+st.markdown("Crawl sitemaps, extract metadata, and filter for **specific keywords** in real-time.")
 
 # Input Section with Columns
 col1, col2 = st.columns([3, 1])
@@ -90,14 +90,29 @@ if start_button:
                     # Extract Data
                     data = extractor.extract_metadata(url)
                     
-                    # Check for Search Term
-                    has_term = (
-                        extractor.contains_term(data.get('Title'), search_term) or 
-                        extractor.contains_term(data.get('Description'), search_term) or 
-                        extractor.contains_term(data.get('H1'), search_term)
-                    )
+                    # Prepare Search Terms (Comma separated)
+                    search_terms = [t.strip() for t in search_term.split(',') if t.strip()] if search_term else []
                     
-                    if has_term:
+                    # Check for Matches
+                    match_found = False
+                    if not search_terms:
+                        # If no search term, show everything (or nothing? usually nothing if filter mode, but let's assume specific filter)
+                        # User said "search multiple string", implying filtering. If empty, maybe show none or all? 
+                        # Previous logic: if search_term was empty, it might have matched nothing.
+                        # Let's assume if empty input, we don't match anything effectively unless we want to show all. 
+                        # But typically 'search' implies filtering.
+                        pass 
+                    else:
+                        # Check if ANY term matches ANY field (including URL)
+                        for term in search_terms:
+                            if (extractor.contains_term(data.get('URL'), term) or 
+                                extractor.contains_term(data.get('Title'), term) or 
+                                extractor.contains_term(data.get('Description'), term) or 
+                                extractor.contains_term(data.get('H1'), term)):
+                                match_found = True
+                                break
+                    
+                    if match_found:
                         results.append(data)
                         
                         # Real-time Table Update
@@ -108,12 +123,14 @@ if start_button:
                             if c not in df.columns: df[c] = 'N/A'
                         df = df[cols]
 
-                        def highlight_term(val):
-                            if isinstance(val, str) and search_term and search_term.lower() in val.lower():
-                                return 'background-color: #fff9c4; color: black; font-weight: bold;' # Light yellow
+                        def highlight_terms(val):
+                            if isinstance(val, str) and search_terms:
+                                for term in search_terms:
+                                    if term.lower() in val.lower():
+                                        return 'background-color: #fff9c4; color: black; font-weight: bold;' # Light yellow
                             return ''
 
-                        styled_df = df.style.map(highlight_term)
+                        styled_df = df.style.map(highlight_terms)
                         table_placeholder.dataframe(styled_df, use_container_width=True, height=400)
                         
                         # Update Matches Metric
@@ -131,8 +148,8 @@ if start_button:
                     st.download_button(
                         label="📥 Download CSV",
                         data=csv,
-                        file_name=f'seo_report_{search_term}.csv',
+                        file_name=f'seo_report.csv',
                         mime='text/csv',
                     )
                 else:
-                    st.warning(f"No pages found containing '{search_term}'.")
+                    st.warning(f"No pages found matching: {search_term}")
